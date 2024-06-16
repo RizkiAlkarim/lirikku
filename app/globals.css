@@ -75,6 +75,22 @@
     }
   }
 
-  /* * {
-    border: red solid 1px;
-  } */
+.line-numbers {
+  width: 20px;
+  text-align: right;
+}
+
+.line-numbers span {
+    counter-increment: linenumber;
+}
+
+.line-numbers span::before {
+    content: counter(linenumber);
+    display: block;
+    color: #506882;
+}
+
+
+/* * {
+  border: red solid 1px;
+} */

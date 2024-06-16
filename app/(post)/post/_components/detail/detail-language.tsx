@@ -1,4 +1,3 @@
-import React from 'react'
 import Image from 'next/image'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import jp from '@/assets/jp.svg'

@@ -1,4 +1,3 @@
-import React from 'react'
 import { ArrowRightIcon } from '@radix-ui/react-icons'
 
 export default function DetailHeader() {

@@ -1,4 +1,3 @@
-import React from 'react'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 export default function DetailFont() {
