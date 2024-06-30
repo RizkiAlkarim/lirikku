@@ -9,6 +9,174 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime? @map("email_verified")
+  image            String?
+  description      String?
+  facebookAccount  String?   @map("facebook_account")
+  instagramAccount String?   @map("instagram_account")
+  twitterAccount   String?   @map("twitter_account")
+  accounts         Account[]
+  sessions         Session[]
+
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  followedBy  Follow[]     @relation("followedBy")
+  following   Follow[]     @relation("following")
+  posts       Post[]
+  likes       Like[]
+  comments    Comment[]
+  suggestions Suggestion[]
+  bookmarks   Bookmark[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model Follow {
+  followedBy   User   @relation("followedBy", fields: [followedById], references: [id])
+  following    User   @relation("following", fields: [followingId], references: [id])
+  followedById String @map("followed_by_id")
+  followingId  String @map("following_id")
+
+  @@id([followingId, followedById])
+  @@map("follows")
+}
+
+model Post {
+  id              String          @id @default(cuid())
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  isPrivate       Boolean         @default(false) @map("is_private")
+  title           String          @db.VarChar(255)
+  originalLyric   String[]        @map("original_lyric") @db.Text
+  translatedLyric String[]        @map("translated_lyric") @db.Text
+  artist          String
+  name            String
+  translatedName  String          @map("translated_name")
+  coverImage      String?         @map("cover_image")
+  youtubeUrl      String?         @map("youtube_url")
+  spotifyUrl      String?         @map("spotify_url")
+  user            User            @relation(fields: [userId], references: [id])
+  userId          String          @map("user_id")
+  genres          GenresOnPosts[]
+  bookmarks       Bookmark[]
+  likes           Like[]
+  comments        Comment[]
+  suggestions     Suggestion[]
+
+  @@map("posts")
+}
+
+model Genre {
+  id    String          @id @default(cuid())
+  genre String          @db.VarChar(50)
+  posts GenresOnPosts[]
+
+  @@map("genres")
+}
+
+model GenresOnPosts {
+  post    Post   @relation(fields: [postId], references: [id])
+  genre   Genre  @relation(fields: [genreId], references: [id])
+  postId  String @map("post_id")
+  genreId String @map("genre_id")
+
+  @@id([postId, genreId])
+  @@map("genresonposts")
+}
+
+model Bookmark {
+  post   Post   @relation(fields: [postId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  postId String @map("post_id")
+  userId String @map("user_id")
+
+  @@id([postId, userId])
+  @@map("bookmarks")
+}
+
+model Like {
+  post   Post   @relation(fields: [postId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  postId String @map("post_id")
+  userId String @map("user_id")
+
+  @@id([postId, userId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  comment   String    @db.Text
+  children  Comment[] @relation("commentChildren")
+  parent    Comment?  @relation("commentChildren", fields: [parentId], references: [id])
+  post      Post      @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  parentId  String?   @map("parent_id")
+  postId    String    @map("post_id")
+  userId    String    @map("user_id")
+
+  @@map("comments")
+}
+
+model Suggestion {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now()) @map("created_at")
+  suggestion String   @db.Text
+  lyricLine  Int      @map("lyric_line")
+  post       Post     @relation(fields: [postId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  postId     String   @map("post_id")
+  userId     String   @map("user_id")
+
+  @@map("suggestions")
 }

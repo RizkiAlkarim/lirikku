@@ -1,15 +1,26 @@
 import "@/app/globals.css";
 import Navbar from "@/components/navbar";
+import { Inter } from "next/font/google";
+import { Metadata } from "next/types";
 
-export default function EditorLayout({
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Post",
+  description: "Create and share your version lyric",
+};
+
+export default async function EditorLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-        <section>
-            <Navbar />
-            {children}
-        </section>
-      );
-    }    
+    <html lang="en">
+      <body className={inter.className}>
+        <Navbar />
+        {children}
+      </body>
+    </html>
+  );
+}

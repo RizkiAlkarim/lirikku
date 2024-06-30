@@ -16,7 +16,7 @@ function Navbar() {
                 <Button variant='ghost'className='text-gray-500'>
                     Discard
                 </Button>
-                <Button>Publish</Button>
+                <Button>Save</Button>
             </div>
         </div>
     </div>

@@ -2,6 +2,9 @@
 
 import {useMemo, useRef} from 'react'
 import { Textarea } from '@/components/ui/textarea'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import {z} from "zod"
 
 type TextAreaProps = {
     value: string;
@@ -11,7 +14,15 @@ type TextAreaProps = {
     name: string;
 }
 
+const LyricSchema = z.object({
+    lyric: z.string()
+})
+
 export default function LyricEditor({value, numOfLines, onValueChange, placeholder, name}: TextAreaProps) {
+    const form = useForm<z.infer<typeof LyricSchema>>({
+        resolver: zodResolver(LyricSchema)
+    })
+
     const lineCount = useMemo(()=> value.split('\n').length, [value])
     const linesArr = useMemo(
         () =>
@@ -42,7 +53,17 @@ export default function LyricEditor({value, numOfLines, onValueChange, placehold
                 ))
             }
         </div>
-        <Textarea className={` outline-none resize-none border-none placeholder:text-gray-400 p-1.5 text-gray-400 w-full text-base`} name={name} onChange={handleTextareaChange} onScroll={handleTextareaScroll} placeholder={placeholder} value={value} ref={textareaRef}/>
+        <Textarea
+            onBlur={async ()=> {
+                console.log(value)
+            }}
+            className={`outline-none resize-none border-none placeholder:text-gray-400 p-1.5 text-gray-400 w-full text-base`}
+            name={name}
+            onChange={handleTextareaChange}
+            onScroll={handleTextareaScroll}
+            placeholder={placeholder}
+            value={value}
+            ref={textareaRef}/>
     </div>
   )
 }
